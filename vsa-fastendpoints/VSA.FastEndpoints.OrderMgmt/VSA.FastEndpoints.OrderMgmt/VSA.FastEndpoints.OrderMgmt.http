@@ -1,0 +1,6 @@
+@VSA.FastEndpoints.OrderMgmt_HostAddress = http://localhost:5131
+
+GET {{VSA.FastEndpoints.OrderMgmt_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
