@@ -1,4 +1,5 @@
 ﻿using Application.Products;
+using FluentValidation;
 using Infrastructure.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +16,8 @@ public static class DependencyInjection
             options.UseSqlite(configuration.GetConnectionString("Default")));
 
         services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+
 
         return services;
     }
