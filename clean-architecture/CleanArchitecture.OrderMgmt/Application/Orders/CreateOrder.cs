@@ -22,19 +22,12 @@ public class CreateOrderValidator : AbstractValidator<CreateOrderRequest>
 {
     public CreateOrderValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .GreaterThan(0).WithMessage("CustomerId must be positive.");
-
-        RuleFor(x => x.OrderLines)
-            .NotEmpty().WithMessage("An order must contain at least one order line.");
-
+        RuleFor(x => x.CustomerId).GreaterThan(0);
+        RuleFor(x => x.OrderLines).NotEmpty();
         RuleForEach(x => x.OrderLines).ChildRules(line =>
         {
-            line.RuleFor(l => l.ProductId)
-                .GreaterThan(0).WithMessage("ProductId must be positive.");
-
-            line.RuleFor(l => l.Quantity)
-                .GreaterThan(0).WithMessage("Quantity must be positive.");
+            line.RuleFor(l => l.ProductId).GreaterThan(0);
+            line.RuleFor(l => l.Quantity).GreaterThan(0);
         });
     }
 }

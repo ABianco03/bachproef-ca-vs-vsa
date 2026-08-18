@@ -16,12 +16,9 @@ public class UpdateCustomerValidator : AbstractValidator<UpdateCustomerRequest>
 {
     public UpdateCustomerValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Name cannot be empty.");
-
-        RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Email cannot be empty.")
-            .EmailAddress().WithMessage("Email must be a valid email address.");
+        RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Email).NotEmpty().EmailAddress();
+        RuleFor(x => x.DiscountTier).IsInEnum();
     }
 }
 

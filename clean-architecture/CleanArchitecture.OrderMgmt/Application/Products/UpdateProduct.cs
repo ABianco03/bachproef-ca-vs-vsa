@@ -16,14 +16,9 @@ public class UpdateProductValidator : AbstractValidator<UpdateProductRequest>
 {
     public UpdateProductValidator()
     {
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Name cannot be empty.");
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0).WithMessage("Price must be positive.");
-
-        RuleFor(x => x.StockQuantity)
-            .GreaterThanOrEqualTo(0).WithMessage("StockQuantity cannot be negative.");
+        RuleFor(x => x.Name).NotEmpty();
+        RuleFor(x => x.Price).GreaterThan(0);
+        RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0);
     }
 }
 
