@@ -3,16 +3,16 @@ using FluentValidation;
 using VSA.FastEndpoints.OrderMgmt.Features.Customers;
 using VSA.FastEndpoints.OrderMgmt.Features.Orders;
 
-namespace VSA.FastEndpoints.OrderMgmt.Features.Orders.PlaceOrder;
+namespace VSA.FastEndpoints.OrderMgmt.Features.Orders.CreateOrder;
 
-public record PlaceOrderRequest(int CustomerId, List<PlaceOrderLineRequest> OrderLines);
-public record PlaceOrderLineRequest(int ProductId, int Quantity);
-public record PlaceOrderResponse(int Id, int CustomerId, DateTime OrderDate, decimal TotalAmount, List<PlaceOrderLineResponse> OrderLines);
-public record PlaceOrderLineResponse(int ProductId, int Quantity, decimal UnitPrice);
+public record CreateOrderRequest(int CustomerId, List<CreateOrderLineRequest> OrderLines);
+public record CreateOrderLineRequest(int ProductId, int Quantity);
+public record CreateOrderResponse(int Id, int CustomerId, DateTime OrderDate, decimal TotalAmount, List<CreateOrderLineResponse> OrderLines);
+public record CreateOrderLineResponse(int ProductId, int Quantity, decimal UnitPrice);
 
-public class PlaceOrderValidator : Validator<PlaceOrderRequest>
+public class CreateOrderValidator : Validator<CreateOrderRequest>
 {
-    public PlaceOrderValidator()
+    public CreateOrderValidator()
     {
         RuleFor(x => x.CustomerId).GreaterThan(0);
         RuleFor(x => x.OrderLines).NotEmpty();
@@ -24,15 +24,14 @@ public class PlaceOrderValidator : Validator<PlaceOrderRequest>
     }
 }
 
-public class PlaceOrderEndpoint(AppDbContext context) : Endpoint<PlaceOrderRequest, PlaceOrderResponse>
+public class CreateOrderEndpoint(AppDbContext context) : Endpoint<CreateOrderRequest, CreateOrderResponse>
 {
-
     public override void Configure()
     {
         Post("/api/orders");
     }
 
-    public override async Task HandleAsync(PlaceOrderRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CreateOrderRequest req, CancellationToken ct)
     {
         var customer = await context.Customers.FindAsync(new object[] { req.CustomerId }, ct);
 
@@ -78,13 +77,13 @@ public class PlaceOrderEndpoint(AppDbContext context) : Endpoint<PlaceOrderReque
 
         await Send.CreatedAtAsync<Get.GetOrderEndpoint>(
             new { id = order.Id },
-            new PlaceOrderResponse(
+            new CreateOrderResponse(
                 order.Id,
                 order.CustomerId,
                 order.OrderDate,
                 order.TotalAmount,
                 order.OrderLines
-                    .Select(l => new PlaceOrderLineResponse(l.ProductId, l.Quantity, l.UnitPrice))
+                    .Select(l => new CreateOrderLineResponse(l.ProductId, l.Quantity, l.UnitPrice))
                     .ToList()),
             cancellation: ct);
     }
