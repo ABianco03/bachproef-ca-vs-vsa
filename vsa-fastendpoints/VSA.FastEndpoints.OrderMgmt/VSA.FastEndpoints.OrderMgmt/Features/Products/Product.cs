@@ -1,4 +1,4 @@
-﻿namespace VSA.FastEndpoints.OrderMgmt.Features.Products.Create;
+namespace VSA.FastEndpoints.OrderMgmt.Features.Products;
 
 public class Product
 {

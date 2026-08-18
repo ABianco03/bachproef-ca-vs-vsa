@@ -1,6 +1,6 @@
 ﻿using FastEndpoints;
 using FluentValidation;
-
+using VSA.FastEndpoints.OrderMgmt.Features.Products;
 
 namespace VSA.FastEndpoints.OrderMgmt.Features.Products.Create;
 public record CreateProductRequest(string Name, decimal Price, int StockQuantity);
@@ -16,19 +16,12 @@ public class CreateProductValidator : Validator<CreateProductRequest>
     }
 }
 
-public class CreateProductEndpoint : Endpoint<CreateProductRequest, CreateProductResponse>
+public class CreateProductEndpoint(AppDbContext context) : Endpoint<CreateProductRequest, CreateProductResponse>
 {
-    private readonly AppDbContext _context;
-
-    public CreateProductEndpoint(AppDbContext context)
-    {
-        _context = context;
-    }
 
     public override void Configure()
     {
         Post("/api/products");
-        AllowAnonymous(); // later vervangen door je JWT-vereiste uit de NFR's
     }
 
     public override async Task HandleAsync(CreateProductRequest req, CancellationToken ct)
@@ -40,8 +33,8 @@ public class CreateProductEndpoint : Endpoint<CreateProductRequest, CreateProduc
             StockQuantity = req.StockQuantity
         };
 
-        _context.Products.Add(product);
-        await _context.SaveChangesAsync(ct);
+        context.Products.Add(product);
+        await context.SaveChangesAsync(ct);
 
         await Send.CreatedAtAsync<CreateProductEndpoint>(
             new { id = product.Id },
