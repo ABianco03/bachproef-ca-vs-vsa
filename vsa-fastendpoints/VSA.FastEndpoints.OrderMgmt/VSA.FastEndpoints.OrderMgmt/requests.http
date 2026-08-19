@@ -1,0 +1,74 @@
+﻿@baseUrl = https://localhost:7123
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwibmFtZSI6IlRlc3QgVXNlciIsImlzcyI6Ik1pam5BcHBsaWNhdGllIiwiYXVkIjoiTWlqbkNsaWVudCIsImV4cCI6MTg5MzQ1NjAwMH0.CI7TKWSHY3RAx24lM0jmJ2O3iJ-EULotZfQxEwDkZQo
+
+### Product aanmaken
+POST {{baseUrl}}/api/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Widget",
+  "price": 19.99,
+  "stockQuantity": 100
+}
+
+### Customer aanmaken (Standard)
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Jan Janssens",
+  "email": "jan@example.com",
+  "discountTier": 1
+}
+
+### Customer aanmaken (Premium)
+POST {{baseUrl}}/api/customers
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Premium Klant",
+  "email": "premium@example.com",
+  "discountTier": 0
+}
+
+### Order plaatsen — happy path
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "orderLines": [
+    { "productId": 1, "quantity": 2 }
+  ]
+}
+
+### Order plaatsen — te weinig voorraad (verwacht: 409)
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "orderLines": [
+    { "productId": 1, "quantity": 99999 }
+  ]
+}
+
+### Order plaatsen — niet-bestaande Customer (verwacht: 404)
+POST {{baseUrl}}/api/orders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "customerId": 9999,
+  "orderLines": [
+    { "productId": 1, "quantity": 1 }
+  ]
+}
+
+### Zonder token (verwacht: 401)
+GET {{baseUrl}}/api/products
