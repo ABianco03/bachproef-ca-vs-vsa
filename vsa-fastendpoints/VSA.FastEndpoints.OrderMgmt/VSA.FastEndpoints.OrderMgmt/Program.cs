@@ -1,6 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Security;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddFastEndpoints();
 builder.Services.AddAuthenticationJwtBearer(s =>
-    s.SigningKey = builder.Configuration["Jwt:Key"]);
+{
+    s.SigningKey = builder.Configuration["Jwt:Key"];
+},
+options =>
+{
+    options.TokenValidationParameters.RoleClaimType = "role";
+});
 
 builder.Services.AddAuthorization();
 

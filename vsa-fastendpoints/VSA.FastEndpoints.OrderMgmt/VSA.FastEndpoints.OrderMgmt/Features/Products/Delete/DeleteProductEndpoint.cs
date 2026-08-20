@@ -11,6 +11,7 @@ public class DeleteProductEndpoint(AppDbContext context) : Endpoint<DeleteProduc
     public override void Configure()
     {
         Delete("/api/products/{id}");
+        Roles("Admin");
     }
 
     public override async Task HandleAsync(DeleteProductRequest req, CancellationToken ct)
