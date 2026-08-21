@@ -23,6 +23,8 @@ public static class DependencyInjection
 
         services.AddScoped<ICreateOrderService, CreateOrderService>();
         services.AddScoped<IGetOrderService, GetOrderService>();
+        services.AddScoped<IAddOrderLineService, AddOrderLineService>();
+        services.AddScoped<IOrderLineProcessor, OrderLineProcessor>();
 
         return services;
     }

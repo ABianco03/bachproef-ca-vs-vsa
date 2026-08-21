@@ -9,5 +9,6 @@ namespace Application.Orders
     {
         Task<Order> AddAsync(Order order);
         Task<Order?> GetByIdAsync(int id);
+        Task UpdateAsync(Order order);
     }
 }

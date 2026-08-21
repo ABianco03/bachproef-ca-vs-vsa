@@ -36,7 +36,8 @@ public class CreateOrderService(
     IOrderRepository orderRepository,
     ICustomerRepository customerRepository,
     IProductRepository productRepository,
-    IValidator<CreateOrderRequest> validator) : ICreateOrderService
+    IValidator<CreateOrderRequest> validator,
+    IOrderLineProcessor orderLineProcessor) : ICreateOrderService
 {
     public async Task<CreateOrderResult> ExecuteAsync(CreateOrderRequest request)
     {
@@ -46,33 +47,24 @@ public class CreateOrderService(
             ?? throw new KeyNotFoundException($"Customer with id {request.CustomerId} was not found.");
 
         var products = new Dictionary<int, Product>();
+        var orderLines = new List<OrderLine>();
+        decimal totalAmount = 0;
 
-        foreach (var line in request.OrderLines)
+        foreach (var lineRequest in request.OrderLines)
         {
-            var product = await productRepository.GetByIdAsync(line.ProductId)
-                ?? throw new KeyNotFoundException($"Product with id {line.ProductId} was not found.");
+            var product = await productRepository.GetByIdAsync(lineRequest.ProductId)
+                ?? throw new KeyNotFoundException($"Product with id {lineRequest.ProductId} was not found.");
 
-            if (product.StockQuantity < line.Quantity)
+            var price = await orderLineProcessor.ProcessOrderLineAsync(product, lineRequest.Quantity, customer);
+            
+            totalAmount += price;
+            products[lineRequest.ProductId] = product;
+            orderLines.Add(new OrderLine
             {
-                throw new InvalidOperationException(
-                    $"Insufficient stock for product with id {line.ProductId}: requested {line.Quantity}, available {product.StockQuantity}.");
-            }
-
-            products[line.ProductId] = product;
-        }
-
-        var totalAmount = request.OrderLines.Sum(line => products[line.ProductId].Price * line.Quantity);
-
-        if (customer.DiscountTier == DiscountTier.Premium)
-        {
-            totalAmount *= 0.9m;
-        }
-
-        foreach (var line in request.OrderLines)
-        {
-            var product = products[line.ProductId];
-            product.StockQuantity -= line.Quantity;
-            await productRepository.UpdateAsync(product);
+                ProductId = lineRequest.ProductId,
+                Quantity = lineRequest.Quantity,
+                UnitPrice = product.Price
+            });
         }
 
         var order = new Order
@@ -80,14 +72,7 @@ public class CreateOrderService(
             CustomerId = request.CustomerId,
             OrderDate = DateTime.UtcNow,
             TotalAmount = totalAmount,
-            OrderLines = request.OrderLines
-                .Select(line => new OrderLine
-                {
-                    ProductId = line.ProductId,
-                    Quantity = line.Quantity,
-                    UnitPrice = products[line.ProductId].Price
-                })
-                .ToList()
+            OrderLines = orderLines
         };
 
         var saved = await orderRepository.AddAsync(order);

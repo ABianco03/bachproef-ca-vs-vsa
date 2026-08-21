@@ -19,4 +19,10 @@ public class OrderRepository(AppDbContext context) : IOrderRepository
             .Include(order => order.OrderLines)
             .FirstOrDefaultAsync(order => order.Id == id);
     }
+
+    public async Task UpdateAsync(Order order)
+    {
+        context.Orders.Update(order);
+        await context.SaveChangesAsync();
+    }
 }
